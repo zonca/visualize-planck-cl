@@ -1,0 +1,143 @@
+<!doctype>
+<head>
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/graph.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/detail.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/src/css/legend.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/examples/css/lines.css">
+	<link type="text/css" rel="stylesheet" href="rickshaw/examples/css/extensions.css">
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.min.css">
+
+	<script src="rickshaw/vendor/d3.v2.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+	<script src="rickshaw/rickshaw.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<style>
+    #text_container {
+        float:left;
+    }
+</style>
+</head>
+<body>
+
+<div id="chart_container">
+    <h1>Planck Cosmic Microwave Background Temperature Angular Power Spectra</h1> 
+	<div id="chart"></div>
+	<div id="legend_container">
+		<div id="smoother" title="Smoothing"></div>
+		<div id="legend"></div>
+	</div>
+	<div id="slider"></div>
+</div>
+<div id="text_container">
+    <p>X axis: $\ell$ <br />Y axis: $\ell(\ell+1)/2\pi [\mu K^2] $</p>
+    <p>Click on legend tickboxes to hide/show plot, click on legend label to show one plot at a time, use bottom slider to change X axis range</p>
+
+    <p>Power spectra from the 1st Planck Public data release
+    <ul>
+        <li>Combined and channels spectra in FITS format available on the <a href="http://irsa.ipac.caltech.edu/data/Planck/release_1/ancillary-data/">release website</a></li> 
+        <li>Best fit power spectrum <a href="http://irsa.ipac.caltech.edu/data/Planck/release_1/ancillary-data/cosmoparams/COM_CosmoParams_base_planck_lowl_lowLike_highL_post_lensing_R1.10.tar.gz">Planck+WP+highL+lensing</a>: Planck low and high-L Temperature with lensing reconstruction, low-L WMAP9 Polarization and high-resolution CMB datasets</li>
+        <li>HFI power spectra were binned with a weighting proportional to $\ell$</li>
+</ul>
+</div>
+<script>
+
+var all_tags = ["030", "044", "070", "100-ds1", "100-ds2", "143-ds1", "143-ds2", "217-ds1", "217-ds2", "bestfit", "combined"];
+
+// palette from http://tools.medialab.sciences-po.fr/iwanthue/
+var colors = ["#C5BC48", "#C755BE", "#91A9C5", "#BE582F", "#505D33", "#80CDA4", "#53364B", "#C64F6F", "#6FCE4E", "#C7A78C", "#786DC1"];
+
+var tag_color = {};
+for (var i = 0; i < all_tags.length; i++) {
+    tag_color[all_tags[i]] = colors[i];
+}
+
+var allData = {};
+
+function loadAllData(tags){
+  var q = queue();
+  tags.forEach(function(d) {
+    q.defer(function(callback) {
+        d3.json("data/" + d + ".json",function(res) { 
+            var data_with_label = {};
+            data_with_label[d] = res;
+            callback(null, data_with_label) 
+        });
+    });
+  });
+
+  q.awaitAll(restOfCode)
+}   
+
+function restOfCode(err, results) {
+  results.forEach(function(data_with_label) {
+      for (var label in data_with_label) {
+          if (data_with_label.hasOwnProperty(label)) {
+              allData[label] = data_with_label[label];
+          }
+      }
+  });
+
+    var series = all_tags.map(function(tag) {
+        return { color : tag_color[tag],
+                 data : allData[tag],
+                 name : tag }});
+
+    var graph = new Rickshaw.Graph( {
+        element: document.getElementById("chart"),
+        width: 700,
+        height: 500,
+        renderer: 'line',
+        min : 'auto',
+        series: series
+    } );
+
+    graph.render();
+
+    var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        xFormatter : function(x) {return "ell:" + x}
+    } );
+
+    var legend = new Rickshaw.Graph.Legend( {
+        graph: graph,
+        element: document.getElementById('legend')
+
+    } );
+
+    var slider = new Rickshaw.Graph.RangeSlider( {
+        graph: graph,
+        element: $('#slider')
+    } );
+
+    var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+        graph: graph,
+        legend: legend
+    } );
+
+    var axes = new Rickshaw.Graph.Axis.X( {
+        graph: graph
+    } );
+    axes.render();
+
+    var axesy = new Rickshaw.Graph.Axis.Y( {
+        graph: graph
+    } );
+    axesy.render();
+}
+
+loadAllData(all_tags);
+
+</script>
+
+</body>
