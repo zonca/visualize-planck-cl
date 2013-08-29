@@ -48,14 +48,15 @@ MathJax.Hub.Config({
         <li>Combined and channels spectra in FITS format available on the <a href="http://irsa.ipac.caltech.edu/data/Planck/release_1/ancillary-data/">release website</a></li> 
         <li>Best fit power spectrum <a href="http://irsa.ipac.caltech.edu/data/Planck/release_1/ancillary-data/cosmoparams/COM_CosmoParams_base_planck_lowl_lowLike_highL_post_lensing_R1.10.tar.gz">Planck+WP+highL+lensing</a>: Planck low and high-L Temperature with lensing reconstruction, low-L WMAP9 Polarization and high-resolution CMB datasets</li>
         <li>HFI power spectra were binned with a weighting proportional to $\ell$</li>
+        <li><a href="http://lambda.gsfc.nasa.gov/product/map/dr5/pow_tt_spec_get.cfm">WMAP 9 year spectrum</a> is unbinned until $\ell$ = 47, then binned for larger $\ell$, to be more easily compared to the Planck combined spectrum</li>
 </ul>
 </div>
 <script>
 
-var all_tags = ["030", "044", "070", "100-ds1", "100-ds2", "143-ds1", "143-ds2", "217-ds1", "217-ds2", "bestfit", "combined"];
+var all_tags = ["wmap9", "030", "044", "070", "100-ds1", "100-ds2", "143-ds1", "143-ds2", "217-ds1", "217-ds2", "bestfit", "combined"];
 
 // palette from http://tools.medialab.sciences-po.fr/iwanthue/
-var colors = ["#C5BC48", "#C755BE", "#91A9C5", "#BE582F", "#505D33", "#80CDA4", "#53364B", "#C64F6F", "#6FCE4E", "#C7A78C", "#786DC1"];
+var colors = ["#374202", "#FE90F8", "#66FCCA", "#F9C023", "#940C29", "#144C85", "#D6E2F1", "#8A9AF4", "#D0FAA1", "#2B2B27", "#116527", "#51C1B3"];
 
 var tag_color = {};
 for (var i = 0; i < all_tags.length; i++) {
